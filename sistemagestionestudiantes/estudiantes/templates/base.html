@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - Gestión Académica</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Admin Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <!-- Menú vertical -->
+      <div class="col-md-2">
+        <ul class="nav nav-pills flex-column" id="dashboardTabs" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="registrar-tab" data-bs-toggle="pill" data-bs-target="#registrar" type="button" role="tab">Registrar Estudiante</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="lista-tab" data-bs-toggle="pill" data-bs-target="#lista" type="button" role="tab">Lista de Estudiantes</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="detalle-tab" data-bs-toggle="pill" data-bs-target="#detalle" type="button" role="tab">Detalle Estudiante</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="promedios-tab" data-bs-toggle="pill" data-bs-target="#promedios" type="button" role="tab">Promedios</button>
+          </li>
+         <li class="nav-item">
+               <button class="nav-link" id="matricular-tab" data-bs-toggle="pill" data-bs-target="#matricular" type="button" role="tab">Matricular Estudiante</button>
+          </li>
+          <li class="nav-item">
+                <button class="nav-link" id="cancelar-tab" data-bs-toggle="pill" data-bs-target="#cancelar" type="button" role="tab">Cancelar Curso</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contenido -->
+      <div class="col-md-10">
+        <div class="tab-content" id="dashboardContent">
+          <!-- Registro -->
+          <div class="tab-pane fade show active" id="registrar" role="tabpanel">
+            <h5>Registrar Estudiante</h5>
+            <form method="POST">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button class="btn btn-success mt-2" type="submit">Registrar</button>
+            </form>
+          </div>
+
+          <!-- Lista -->
+          <div class="tab-pane fade" id="lista" role="tabpanel">
+            <h5>Lista de Estudiantes</h5>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Código</th>
+                  <th>Email</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for estudiante in estudiantes %}
+                <tr>
+                  <td>{{ estudiante.nombre }}</td>
+                  <td>{{ estudiante.apellido }}</td>
+                  <td>{{ estudiante.codigo }}</td>
+                  <td>{{ estudiante.email }}</td>
+                  <td>
+                    <a href="{% url 'detalle_estudiante' estudiante.id %}" class="btn btn-sm btn-info">Ver Detalle</a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center">No hay estudiantes registrados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        <div class="tab-pane fade" id="matricular" role="tabpanel" aria-labelledby="matricular-tab"> 
+          <div class="mb-3">
+            <a href="{% url 'matricular_estudiante' %}" class="btn btn-primary">Matricular Estudiante</a>
+          </div>
+         
+          
+  <h4>Matricular Estudiante</h4>
+    <form method="POST" action="{% url 'matricular_estudiante' %}">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-5">
+                <label for="estudiante_id" class="form-label">Estudiante:</label>
+                <select name="estudiante_id" class="form-select" required>
+                    <option value="">Seleccione...</option>
+                    {% for est in estudiantes %}
+                        <option value="{{ est.id }}">{{ est.nombre }} {{ est.apellido }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label for="asignatura_id" class="form-label">Asignatura:</label>
+                <select name="asignatura_id" class="form-select" required>
+                    <option value="">Seleccione...</option>
+                    {% for asig in asignaturas %}
+                        <option value="{{ asig.id }}">{{ asig.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Matricular</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="tab-pane fade" id="cancelar" role="tabpanel" aria-labelledby="cancelar-tab">
+  <h4>Cancelar Curso</h4>
+  <form method="POST" action="{% url 'cancelar_curso' %}">
+    {% csrf_token %}
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="estudiante_id" class="form-label">Estudiante:</label>
+        <select name="estudiante_id" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for est in estudiantes %}
+            <option value="{{ est.id }}">{{ est.nombre }} {{ est.apellido }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label for="asignatura_id" class="form-label">Asignatura a cancelar:</label>
+        <select name="asignatura_id" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for asig in asignaturas %}
+            <option value="{{ asig.id }}">{{ asig.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-danger">Cancelar Curso</button>
+  </form>
+</div>
+
+          <!-- Detalle -->
+          <div class="tab-pane fade" id="detalle" role="tabpanel">
+            {% if estudiante_detalle %}
+  <hr>
+  <h6>Agregar Calificación</h6>
+  <form method="POST" action="{% url 'detalle_estudiante' estudiante_detalle.id %}">
+    {% csrf_token %}
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="asignatura_id" class="form-label">Asignatura:</label>
+        <select name="asignatura_id" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for asig in asignaturas %}
+            <option value="{{ asig.id }}">{{ asig.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="calificacion" class="form-label">Calificación:</label>
+        <input type="number" name="calificacion" class="form-control" step="0.01" min="0" max="100" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success">Agregar Calificación</button>
+  </form>
+{% endif %}
+            
+           
+            <!-- Buscar por texto -->
+<h5>Buscar por nombre, apellido o código</h5>
+<form method="GET" action="{% url 'panel_estudiantes' %}" class="form-inline mb-3">
+  <input type="text" name="busqueda" class="form-control mr-2" placeholder="Buscar estudiante">
+  <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
+<!-- Buscar desde lista desplegable -->
+<h5>Buscar Estudiante desde lista</h5>
+<form method="GET" action="" class="mb-3">
+  <label for="id">Selecciona un estudiante</label>
+  <div class="input-group">
+    <select class="form-select" id="id" name="id" onchange="if(this.value) window.location.href=this.value;">
+      <option value="">-- Seleccionar --</option>
+      {% for estudiante in estudiantes %}
+        <option value="{% url 'detalle_estudiante' estudiante.id %}">
+          {{ estudiante.nombre }} {{ estudiante.apellido }} ({{ estudiante.codigo }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+
+            {% if estudiante_detalle %}
+              <h6>{{ estudiante_detalle.nombre }} {{ estudiante_detalle.apellido }} - {{ estudiante_detalle.codigo }}</h6>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Asignatura</th>
+                    <th>Calificación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for nota in estudiante_detalle.notas.all %}
+                  <tr>
+                    <td>{{ nota.asignatura }}</td>
+                    <td>{{ nota.calificacion }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+
+
+            
+
+
+          </div>
+
+          <!-- Promedios -->
+          <div class="tab-pane fade" id="promedios" role="tabpanel">
+            <h5>Promedios por Estudiante</h5>
+            <ul class="list-group mb-3">
+              {% for estudiante in estudiantes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ estudiante.nombre }} {{ estudiante.apellido }}
+                  <span class="badge bg-secondary">
+                    {{ estudiante.promedio|default:"N/A" }}
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+
+            <h5>Promedios del Curso</h5>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Asignatura</th>
+                  <th>Promedio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for asignatura, promedio in promedios_curso.items %}
+                <tr>
+                  <td>{{ asignatura }}</td>
+                  <td>{{ promedio }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
